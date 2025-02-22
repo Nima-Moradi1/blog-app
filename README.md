@@ -94,7 +94,8 @@ npm run build && npm start
 ✅ Full **Next.js** & **TypeScript** support  
 ✅ **Fully responsive** design with TailwindCSS  
 ✅ **React Query** for data fetching & caching  
-✅ **React Context** for storing user data (State manager) 
+✅ **React Context** for storing user data (State manager)  
+ 
 ✅ **JWT-based (httpOnly Cookies) authentication**  
 ✅ **Nested routes**, **pagination**, **sorting & filtering**  
 ✅ **Admin panel** for website admin 
