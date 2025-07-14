@@ -17,9 +17,10 @@ interface PostsProps {
         name : string
     }
 }
-const PostList = async ({posts , totalPages}:{posts : PostsProps[] , totalPages : number}) => {
+const PostList = async ({posts , totalPages}:{posts : PostsProps[] , totalPages? : number}) => {
     return (
       <div>
+        {posts?.length === 0 ? <></> : 
         <div className="grid grid-cols-12 gap-8">
         {posts?.map((post : PostsProps) => {
           return (
@@ -55,8 +56,9 @@ const PostList = async ({posts , totalPages}:{posts : PostsProps[] , totalPages 
           );
         })}
       </div>
+      }
       <div className="flex items-center justify-center mt-10">
-      <Pagination totalPages={totalPages}/>
+      <Pagination totalPages={totalPages || 1}/>
       </div>
       </div>
    )

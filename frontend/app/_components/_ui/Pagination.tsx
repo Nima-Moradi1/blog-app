@@ -22,7 +22,7 @@ const Pagination = ({totalPages}: {totalPages : number}) => {
 const allPages = generatePagination(currentPage, totalPages) ;
 
 return (
-    <div className="inline-flex">
+    <div className="inline-flex mb-2">
         <PaginationArrow 
         direction= 'left'
         href={createPageUrl(currentPage - 1)}

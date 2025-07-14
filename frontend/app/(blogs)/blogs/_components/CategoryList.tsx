@@ -14,8 +14,8 @@ const CategoryList = async () => {
     //destructure the objects from the data response
     const {data : {categories}} = await response.json()
   return (
-    <ul className="space-y-4">
-        <Link href='/blogs'>همه</Link>
+    <ul className="space-y-4 grid grid-cols-4 md:grid-cols-3 lg:grid-cols-1">
+        <Link href='/blogs' className="mt-4 lg:mt-0">همه</Link>
         {categories.map((category : categoryProps) => {
             return (
                 <li key={category._id}>

@@ -35,7 +35,6 @@ const SinglePost = async ({params}:postSlugProps) => {
       {post.title}
     </h1>
     <p className="mb-4">{post.briefText}</p>
-    <p className="mb-8">{post.text}</p>
     <div className="relative aspect-video overflow-hidden rounded-lg mb-10">
       <Image
       alt={post.title}
@@ -44,6 +43,7 @@ const SinglePost = async ({params}:postSlugProps) => {
         src={post.coverImageUrl}
       />
     </div>
+    <p className="mb-16">{post.text}</p>
     {post.related.length > 0 && <RelatedPost posts={post.related} />}
     <BlogComments post={post} /> 
   </div>

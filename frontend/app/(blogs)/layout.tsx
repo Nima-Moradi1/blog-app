@@ -12,7 +12,7 @@ export const metadata = {
     return (
       <>
         <Header/>
-        <div className="container xl:max-w-screen-xl"
+        <div className="container xl:max-w-screen-xl "
         >{children}</div>
       </>
     );

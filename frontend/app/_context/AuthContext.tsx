@@ -84,7 +84,7 @@ const authReducer = (state : StateProps, action : { type: string, payload?: any 
                 isAdmin : adminEmails.includes(action.payload?.email) ,
                 isLoading : false
             } ;
-            case 'logout' : 
+        case 'logout' : 
             return {
                 state : initialState ,
                 user : null ,
@@ -113,6 +113,7 @@ async function signin(values: SigninProps) {
      } 
         catch (err: any) {
         const errorMsg = (err as any)?.response?.data?.message 
+        console.log("error from signing in :",errorMsg);
         dispatch({ type: 'rejected', payload: errorMsg});
         toast.error(errorMsg);
     }

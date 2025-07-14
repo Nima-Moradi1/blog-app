@@ -12,19 +12,19 @@ interface ParamsProps {
 // we added category page in (postList) because we wanted to use the same layout
 
 const CategoryPage = async ({params , searchParams}:{params:ParamsProps , searchParams : Promise<{ [key: string]: string | string[] | undefined }>} ) => {
-    const {categorySlug}  = params
-    const sParams = await searchParams
-    const {search} =  sParams
-    const queries = `categorySlug=${categorySlug}&${queryString.stringify(sParams)}`
+    const {categorySlug}  = params;
+    const sParams = await searchParams;
+    const {search} =  sParams;
+    const queries = `categorySlug=${categorySlug}&${queryString.stringify(sParams)}`;
     //! cookies are DYNAMIC functions from nextjs >> by using this,the component won't be static anymore.
-        const cookieStore = await cookies()
-        const options = setCookieOnReq(cookieStore)
+        const cookieStore = await cookies();
+        const options = setCookieOnReq(cookieStore);
         const {posts} = await getAllPosts(queries,options);
   return (
     <div>
       {search ? 
       <p className='text-secondary-700 mb-5 font-bold'>
-      {posts.length === 0 ? <>هیچ پستی با این مشخصات یافت نشد</> : 
+      {posts?.length === 0 ? <span>هیچ پستی با این تیتر یا متن یافت نشد</span> : 
       <>نشان دادن {posts.length} نتیجه برای &quot;{search}&quot;</>}
       </p> : null}
       <PostList posts={posts}/>

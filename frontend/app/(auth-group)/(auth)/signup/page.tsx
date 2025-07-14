@@ -4,13 +4,12 @@ import Button from "@/_components/_ui/Button"
 import RHFTextField from "@/_components/_ui/RHFTextField"
 import Spinner from "@/_components/_ui/Spinner"
 import { useAuth } from "@/_context/AuthContext"
+import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline"
 import { yupResolver } from "@hookform/resolvers/yup"
 import Link from "next/link"
+import { useState } from "react"
 import { FieldErrors, FieldValues, Mode, useForm } from "react-hook-form"
 import * as yup from 'yup'
-// export const metadata = {
-//     title : 'ثبت نام در سایت'
-// }
 
 
 type UseFormProps<
@@ -36,10 +35,12 @@ const schema = yup.object({
     .min(8 , 'رمز عبور باید حداقل ۸ کاراکتر باشد')
     .matches(/(?=.*[0-9])/, {message : 'رمز عبور باید شامل حداقل یک عدد باشد'})
     .matches(/(?=.*[a-z])/, {message : 'رمز عبور باید شامل حداقل یک حرف کوچک باشد'})
-    .matches(/(?=.*[A-Z])/, {message : 'رمز عبور باید شامل حداقل یک حرف بزرگ باشد'})
+    .matches(/(?=.*[A-Z])/, {message : 'رمز عبور باید شامل حداقل یک حرف بزرگ باشد'}),
+    confirmPassword : yup.string().oneOf([yup.ref('password')], 'رمز عبور و تکرار آن باید یکسان باشند')
 }) .required()
 
 const Signup = () => {
+  const [showPassword , setShowPassword] = useState(false)
 
     const {signup} = useAuth()
 
@@ -49,7 +50,9 @@ const Signup = () => {
         mode : 'onTouched'
     })
     const onSubmit = async (values:any) => {
-      await signup(values)
+      const {name , email , password} = values;
+      await signup({name , email , password})
+      
     }
   return (
     <div>
@@ -65,10 +68,31 @@ const Signup = () => {
              label="ایمیل" name="email" register={register} type="email" dir="ltr" isRequired
              errors={errors}
              />
-              <RHFTextField 
-             label="رمز عبور" name="password" type="password" register={register} dir="ltr" isRequired
-             errors={errors}
-             />
+               <div className='relative'>
+            <RHFTextField isRequired type={showPassword ? 'text' : 'password'} name='password' label='رمز عبور ' register={register} errors={errors}/>
+              {showPassword ? <>
+                            <EyeIcon
+                              onClick={()=> setShowPassword(!showPassword)}
+                              className={`${Object.keys(errors).includes('password') && Object.keys(errors).length > 0 ? 'top-1/2' : 'top-2/3'} absolute cursor-pointer left-3  -translate-y-1/2 size-5 text-gray-500`}/>
+              </> : <>
+                            <EyeSlashIcon
+                            onClick={()=> setShowPassword(!showPassword)}
+                              className={`${Object.keys(errors).includes('password') && Object.keys(errors).length > 0 ? 'top-1/2' : 'top-2/3'} absolute cursor-pointer left-3  -translate-y-1/2 size-5 text-gray-500`}/>
+              </>}
+            </div>
+            <div className='relative'>
+            <RHFTextField isRequired type={showPassword ? 'text' : 'password'} name='confirmPassword' label='تکرار رمز عبور' register={register} errors={errors}/>
+            {showPassword ? <>
+                        <EyeIcon
+                              onClick={()=> setShowPassword(!showPassword)}
+                              className={`${Object.keys(errors).includes('confirmPassword') && Object.keys(errors).length > 0 ? 'top-1/2' : 'top-2/3'} absolute cursor-pointer left-3  -translate-y-1/2 size-5 text-gray-500`}/>
+              </> : <>
+                            <EyeSlashIcon
+                            onClick={()=> setShowPassword(!showPassword)}
+                              className={`${Object.keys(errors).includes('confirmPassword') && Object.keys(errors).length > 0 ? 'top-1/2' : 'top-2/3'} absolute cursor-pointer left-3  -translate-y-1/2 size-5 text-gray-500`}/>
+              </>}
+            </div>
+             
             <div className="mt-10">
           {isLoading ? (   
              <Spinner />

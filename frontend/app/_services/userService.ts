@@ -25,3 +25,9 @@ export async function updateProfileApi(data : any,options: object = {}) {
 export async function uploadAvatarApi(formData : FormData, options: object = {}){
     return http.post('/user/upload-avatar' , formData , options).then(({data}:any)=>data.data)
 }
+export async function forgotPasswordApi(data : {email : string}) {
+    return http.post(`/user/forgot-password`, data).then(({data} : any) => data.data);
+}
+export async function resetPasswordApi(data : {token : string , password : string}){
+    return http.post('/user/reset-password', data).then(({data}:any)=>data.data);
+}

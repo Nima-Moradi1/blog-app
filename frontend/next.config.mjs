@@ -6,6 +6,10 @@ const nextConfig = {
       {
         hostname: "localhost",
       },
+      {
+        protocol: "https",
+        hostname: "avatars.githubusercontent.com",
+      },
     ],
   },
   // for better and more complete url fetch logs (with cache status)

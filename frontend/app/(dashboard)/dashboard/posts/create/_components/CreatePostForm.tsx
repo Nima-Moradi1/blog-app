@@ -136,22 +136,22 @@ function CreatePostForm({postToEdit = {}}: {postToEdit? :EditProps | any}) {
               formData.append('coverImage', data.coverImage);
             }
             console.log(data);
-            //          if(isUserEditing) {
-            //   editPost({id: editId , data : formData}, 
-            //     {
-            //       onSuccess : () => {
-            //         router.push('/dashboard/posts')
-            //         reset() ;
-            //       }
-            //     }
-            //   )
-            // } else {
-            //   createPost(formData , {
-            //     onSuccess : () => {
-            //         router.push('/dashboard/posts')
-            //     }
-            // })
-            // }
+                     if(isUserEditing) {
+              editPost({id: editId , data : formData}, 
+                {
+                  onSuccess : () => {
+                    router.push('/dashboard/posts')
+                    reset() ;
+                  }
+                }
+              )
+            } else {
+              createPost(formData , {
+                onSuccess : () => {
+                    router.push('/dashboard/posts')
+                }
+            })
+            }
             
     }
  
