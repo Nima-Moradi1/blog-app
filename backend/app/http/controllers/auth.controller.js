@@ -1,8 +1,4 @@
-const {
-  VerifyRefreshToken,
-  setAccessToken,
-  setRefreshToken,
-} = require("../../utils/functions");
+const { VerifyRefreshToken, setAccessToken, setRefreshToken } = require("../../utils/functions");
 const Controller = require("./controller");
 const createError = require("http-errors");
 const { StatusCodes: HttpStatus } = require("http-status-codes");
@@ -12,8 +8,12 @@ const {
   validateUpdateProfileSchema,
 } = require("../validators/user/auth.schema");
 const path = require("path");
+const dotenv = require("dotenv");
+dotenv.config();
 const { UserModel } = require("../../models/user");
 const bcrypt = require("bcryptjs");
+const renderForgotPasswordTemplate = require("../../utils/renderForgotPasswordTemplate");
+
 class UserAuthController extends Controller {
   constructor() {
     super();
@@ -24,8 +24,7 @@ class UserAuthController extends Controller {
 
     // checking if the user is already in the data base :
     const existedUser = await this.checkUserExist(email);
-    if (existedUser)
-      throw createError.BadRequest("کاربری با این ایمیل وجود دارد");
+    if (existedUser) throw createError.BadRequest("کاربری با این ایمیل وجود دارد");
 
     // HASH PASSWORD :
     const salt = await bcrypt.genSaltSync(10);
@@ -62,8 +61,7 @@ class UserAuthController extends Controller {
 
     // PASSWORD IS CORRECT :
     const validPass = await bcrypt.compare(password, user.password);
-    if (!validPass)
-      throw createError.BadRequest("ایمیل یا رمز عبور اشتباه است");
+    if (!validPass) throw createError.BadRequest("ایمیل یا رمز عبور اشتباه است");
 
     await setAccessToken(res, user);
     await setRefreshToken(res, user);
@@ -88,8 +86,7 @@ class UserAuthController extends Controller {
         $set: { name, email },
       }
     );
-    if (!updateResult.modifiedCount === 0)
-      throw createError.BadRequest("اطلاعات ویرایش نشد");
+    if (!updateResult.modifiedCount === 0) throw createError.BadRequest("اطلاعات ویرایش نشد");
 
     return res.status(HttpStatus.OK).json({
       statusCode: HttpStatus.OK,
@@ -110,8 +107,7 @@ class UserAuthController extends Controller {
         $set: { avatar: avatarAddress },
       }
     );
-    if (!updateResult.modifiedCount === 0)
-      throw createError.BadRequest("عکس پروفایل آپلود نشد");
+    if (!updateResult.modifiedCount === 0) throw createError.BadRequest("عکس پروفایل آپلود نشد");
     return res.status(HttpStatus.OK).json({
       statusCode: HttpStatus.OK,
       data: {
@@ -155,6 +151,77 @@ class UserAuthController extends Controller {
   async checkUserExist(email) {
     const user = await UserModel.findOne({ email });
     return user;
+  }
+  async forgotPassword(req, res) {
+    const FIVE_MINUTES = 5 * 60 * 1000;
+
+    const { email } = req.body;
+    const user = await this.checkUserExist(email.toLowerCase());
+    if (!user) throw createError.NotFound("کاربری با این ایمیل وجود ندارد");
+
+    if (user.resetPasswordRequestedAt && Date.now() - user.resetPasswordRequestedAt.getTime() < FIVE_MINUTES) {
+      const remainingMs = FIVE_MINUTES - (Date.now() - user.resetPasswordRequestedAt.getTime());
+      const minutes = Math.floor(remainingMs / 60000);
+      const seconds = Math.floor((remainingMs % 60000) / 1000);
+      throw createError.TooManyRequests(`لطفاً ${minutes} دقیقه و ${seconds} ثانیه دیگر دوباره تلاش کنید`);
+    }
+    const crypto = require("crypto");
+    const resetToken = crypto.randomBytes(32).toString("hex");
+    const tokenExpiry = Date.now() + 15 * 60 * 1000; // 15 minutes
+
+    user.resetPasswordToken = resetToken;
+    user.resetPasswordExpires = tokenExpiry;
+    user.resetPasswordRequestedAt = new Date();
+    await user.save();
+
+    const resetLink = `${process.env.CLIENT_URL}/reset-password/${resetToken}`;
+
+    // You should use a real email sending utility here
+    console.log(`Send password reset email to ${user.email}: ${resetLink}`);
+
+    const sendEmail = require("../../utils/sendEmail");
+    const html = renderForgotPasswordTemplate(resetLink);
+    try {
+      await sendEmail(user.email, "بازیابی رمز عبور", html);
+    } catch (error) {
+      console.error("❌ ارسال ایمیل با خطا مواجه شد:", error);
+      throw createError.InternalServerError("خطا در ارسال ایمیل");
+    }
+
+    return res.status(HttpStatus.OK).json({
+      statusCode: HttpStatus.OK,
+      data: {
+        message: "لینک بازیابی رمز عبور برای ایمیل شما ارسال شد",
+      },
+    });
+  }
+  async resetPassword(req, res) {
+    const { token, password } = req.body;
+
+    const user = await UserModel.findOne({
+      resetPasswordToken: token,
+      resetPasswordExpires: { $gt: Date.now() },
+    });
+
+    if (!user) {
+      throw createError.BadRequest("توکن نامعتبر است یا منقضی شده است");
+    }
+
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+
+    user.password = hashedPassword;
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpires = undefined;
+
+    await user.save();
+
+    return res.status(HttpStatus.OK).json({
+      statusCode: HttpStatus.OK,
+      data: {
+        message: "رمز عبور با موفقیت بروزرسانی شد",
+      },
+    });
   }
   logout(req, res) {
     const cookieOptions = {

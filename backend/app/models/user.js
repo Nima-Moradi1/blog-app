@@ -11,6 +11,9 @@ const UserSchema = new mongoose.Schema(
     bookmarkedPosts: [{ type: ObjectId, ref: "Post" }],
     likedPosts: [{ type: ObjectId, ref: "Post" }],
     avatar: { type: String, default: null },
+    resetPasswordToken: { type: String },
+    resetPasswordExpires: { type: Date },
+    resetPasswordRequestedAt: { type: Date },
   },
   {
     timestamps: true,

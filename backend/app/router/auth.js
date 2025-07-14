@@ -6,31 +6,18 @@ const router = require("express").Router();
 
 router.post("/signup", expressAsyncHandler(UserAuthController.signup));
 router.post("/signin", expressAsyncHandler(UserAuthController.signin));
-router.get(
-  "/refresh-token",
-  expressAsyncHandler(UserAuthController.refreshToken)
-);
-router.patch(
-  "/update",
-  verifyAccessToken,
-  expressAsyncHandler(UserAuthController.updateProfile)
-);
+router.get("/refresh-token", expressAsyncHandler(UserAuthController.refreshToken));
+router.patch("/update", verifyAccessToken, expressAsyncHandler(UserAuthController.updateProfile));
 router.post(
   "/upload-avatar",
   verifyAccessToken,
   uploadFile.single("avatar"),
   expressAsyncHandler(UserAuthController.updateAvatar)
 );
-router.get(
-  "/profile",
-  verifyAccessToken,
-  expressAsyncHandler(UserAuthController.getUserProfile)
-);
-router.get(
-  "/list",
-  verifyAccessToken,
-  expressAsyncHandler(UserAuthController.getAllUsers)
-);
+router.get("/profile", verifyAccessToken, expressAsyncHandler(UserAuthController.getUserProfile));
+router.get("/list", verifyAccessToken, expressAsyncHandler(UserAuthController.getAllUsers));
+router.post("/forgot-password", expressAsyncHandler(UserAuthController.forgotPassword));
+router.post("/reset-password", expressAsyncHandler(UserAuthController.resetPassword));
 router.post("/logout", expressAsyncHandler(UserAuthController.logout));
 
 module.exports = {
